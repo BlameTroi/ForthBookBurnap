@@ -2,11 +2,11 @@
 \ FORTH the 4th Generation Language, Steve Burnap
 \ t.brumley 2015
 
-[ifdef] test1.fs
-    test1.fs
+[ifdef] alloc-and-term-io
+  alloc-and-term-io
 [endif]
 
-marker test1.fs
+marker alloc-and-term-io
 
 \ *** get into a vocabulary (namespace) of my own
 vocabulary troy
@@ -16,48 +16,43 @@ troy definitions
 
 \ constants and variables
 
-10 constant num-records
+10 constant number-of-records
 20 constant name-length
-2 constant score-length
+ 4 constant score-length ( 32 bits stored in binary )
 
 name-length score-length + constant record-length
 
 create test-scores
 
-test-scores record-length num-records *
+test-scores record-length number-of-records *
 dup allot erase
 
-num-records 1 - constant max-record-number
+number-of-records 1 - constant max-record-number
 
 
-\ find record/entry by number, checks for validity
+\ find record/entry by number, checking for validity
+\ dependent words count on >score-record to do range
+\ checking and abort if appropriate. the book i'm
+\ working through is old enough that it doesn't deal
+\ with real exception handling.
 
 : >score-record ( n -- addr )
-  dup dup 0 < swap max-record-number > or if
+  dup dup 0 < swap max-record-number > or
+  if
 	  ." invalid record number: " . quit
   else
 	  record-length * test-scores +
   then ;
 
-\ find name for record by number, rely on >score-record for
-\ error checking
-
 : >name-for-record ( n -- addr )
   >score-record
 ;
-
-\ find score for record by number, rely on >score-record for
-\ error checking
 
 : >score-for-record ( n -- addr )
   >score-record
   name-length +
 ;
 
-\ display name for record ...
-: >print-name ( n -- )
-    >name-for-record name-length type
-;
 
 \ scrub an entry, or subfields within the entry
 
@@ -73,34 +68,75 @@ num-records 1 - constant max-record-number
   dup >clear-name >clear-score
 ;
 
-\ enter name for record ...
+
+\ enter fields or the whole record
+
 : >enter-name ( n -- )
-    dup >clear-name
-    >name-for-record name-length expect
+  dup >clear-name
+  >name-for-record name-length expect
 ;
 
-\ display score for record ...
-: >print-score ( n -- )
-    >score-for-record score-length type
-;
-
-\ enter score for record ..
 : >enter-score ( n -- )
+  \ this is rather simple minded, but it is good
+  \ enough for this exercise
   dup
   >clear-score
-  >score-for-record score-length expect
-;
+  pad 10 accept
+  pad swap s>number?
+  if
+    drop swap >score-for-record l!
+  else
+    ." error on input conversion" quit
+  then
+  ;
 
-
-\ display whole record
-: >print-record ( n -- )
-    dup
-    >print-name
-    space
-    >print-score
-;
 
 : >enter-record ( n -- )
   dup
-  >
+  >enter-name
+  >enter-score
+;
+
+
+\ display fields or the whole record
+
+: >print-name ( n -- )
+  >name-for-record name-length type
+;
+
+: >print-score ( n -- )
+  >score-for-record l@ .
+;
+
+: >print-record ( n -- )
+  dup
+  >print-name
+  space
+  >print-score
+;
+
+
+\ more of the higher level application
+
+: enter-records
+  \ loop to load the score-record
+  number-of-records 0 ?do
+    i dup cr . ." :"
+    >enter-record
+  loop
+;
+
+
+: print-records
+  number-of-records 0 ?do
+    i dup cr . ." :" >print-record
+  loop
+;
+
+: average-records ( -- n )
+  0
+  number-of-records 0 ?do
+    i >score-for-record l@ +
+  loop
+  number-of-records /
 ;
