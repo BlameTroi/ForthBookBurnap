@@ -37,7 +37,7 @@ troy definitions
 \ eat some space before testing
 \
 \ create space-eater
-\space-eater 9999 dup allot erase
+\ space-eater 9999 dup allot erase
 \
 \ and the return stack is elsewhere so this didn't change
 \ the behavior
@@ -59,14 +59,67 @@ troy definitions
   then
 ;
 
+
 \ more complex fib that caches several values as they
 \ are calculated, arbitrarily using 100 cells and
 \ sloppily using magic numbers since this is just
 \ hacking to get used to using forth
 
 create fib-cache
-fib-cache 8 100 * dup allot erase
+fib-cache 8 100 * dup allot 255 fill
 
-: cached-fib ( n -- fib )
-  ." work in progress "
+: can-cache-fib ( n -- f )
+  dup -1 > swap 100 < and
+;
+
+: >fib-cache-entry ( n -- address-of-entry )
+  \ counts on outer code to protect cache and
+  \ not use this address if it is bad
+  8 * fib-cache +
+;
+
+\ test if this fib has been cached
+\ return false if not, non-zero
+\ value if it has
+: @fib-in-cache ( n -- f or cached-fib-entry )
+  \ drop false exit ( do nothing as yet )
+  dup can-cache-fib if >fib-cache-entry @ else drop -1 then
+;
+
+\ store value in cache if it will fit
+: !fib-in-cache ( fibn n -- )
+  dup can-cache-fib if >fib-cache-entry ! else 2drop then
+;
+
+\ preload initial cache values for 0, 1, and 2 to
+\ simplify coding
+
+0 0 !fib-in-cache
+1 1 !fib-in-cache
+1 2 !fib-in-cache
+
+\ i could add more but i'm only adding the head of
+\ the series to seed the algorithm
+
+\ calculate
+: cached-fib-1 ( n -- fib )
+  \ i have confirmed that this works correctly
+  \ if all the cache support is stubbed out, so
+  \ the failure is in dealing with the data
+  \ returned from the cache
+
+  dup @fib-in-cache dup -1 <> if
+    \ value returned from cache
+    swap drop
+  else
+    \ value not returned
+    \ simplistically just calculate and store
+    \ the answer, counting on the cache handlers
+    \ to protect the cache and leave the stack
+    \ in an understandable state even when the
+    \ value can't be cached
+    \ break" blarg"
+    drop dup 1- dup 1- recurse swap recurse +
+    dup rot !fib-in-cache
+  then
 ;
