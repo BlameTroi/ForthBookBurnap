@@ -23,3 +23,4 @@ troy definitions
 
 \ chapter on sorting.
 
+: s> ;

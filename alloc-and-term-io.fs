@@ -2,11 +2,11 @@
 \ FORTH the 4th Generation Language, Steve Burnap
 \ t.brumley 2015
 
-[ifdef] alloc-and-term-io
-  alloc-and-term-io
+[ifdef] alloc-and-term-io.fs
+  alloc-and-term-io.fs
 [endif]
 
-marker alloc-and-term-io
+marker alloc-and-term-io.fs
 
 \ *** get into a vocabulary (namespace) of my own
 vocabulary troy
