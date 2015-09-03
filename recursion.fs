@@ -25,7 +25,7 @@ troy definitions
   else
     dup .
     1- recurse
-  then
+  endif
 ;
 
 : countUp ( n -- )
@@ -33,7 +33,7 @@ troy definitions
     .
   else
     dup 1- recurse .
-  then
+  endif
 ;
 
 \ ---------------------------------------------------------------------
@@ -66,7 +66,7 @@ troy definitions
   dup 1 >
   if
     1- dup 1- recurse swap recurse +
-  then
+  endif
 ;
 
 
@@ -93,12 +93,12 @@ fib-cache 8 200 * dup allot 255 fill
 \ value if it has
 : @fib-in-cache ( n -- f or cached-fib-entry )
   \ drop false exit ( do nothing as yet )
-  dup can-cache-fib if >fib-cache-entry @ else drop -1 then
+  dup can-cache-fib if >fib-cache-entry @ else drop -1 endif
 ;
 
 \ store value in cache if it will fit
 : !fib-in-cache ( fibn n -- )
-  dup can-cache-fib if >fib-cache-entry ! else 2drop then
+  dup can-cache-fib if >fib-cache-entry ! else 2drop endif
 ;
 
 \ preload initial cache values for 0, 1, and 2 to
@@ -131,7 +131,7 @@ fib-cache 8 200 * dup allot 255 fill
     \ break" blarg"
     drop dup 1- dup 1- recurse swap recurse +
     dup rot !fib-in-cache
-  then
+  endif
 ;
 
 
@@ -144,7 +144,7 @@ fib-cache 8 200 * dup allot 255 fill
   2dup 1. d>
   if
     1. d- 2dup 1. d- recurse 2swap recurse d+
-  then
+  endif
 ;
 
 
@@ -171,12 +171,12 @@ fib-cache-double 16 200 * dup allot 255 fill
 \ value if it has
 : @fib-in-cache-double ( n -- f or cached-fib-entry )
   \ drop false exit ( do nothing as yet )
-  dup can-cache-fib-double if >fib-cache-entry-double 2@ else drop -1. then
+  dup can-cache-fib-double if >fib-cache-entry-double 2@ else drop -1. endif
 ;
 
 \ store value in cache if it will fit
 : !fib-in-cache-double ( fibn n -- )
-  dup can-cache-fib-double if >fib-cache-entry-double 2! else drop 2drop then
+  dup can-cache-fib-double if >fib-cache-entry-double 2! else drop 2drop endif
 ;
 
 \ preload initial cache values for 0, 1, and 2 to
@@ -208,5 +208,5 @@ fib-cache-double 16 200 * dup allot 255 fill
     \ value can't be cached
     2drop dup 0 swap 1- dup 1- recurse rot recurse d+
     2dup 2rot drop !fib-in-cache-double
-  then
+  endif
 ;

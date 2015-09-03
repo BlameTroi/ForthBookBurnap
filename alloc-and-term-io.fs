@@ -42,15 +42,14 @@ number-of-records 1 - constant max-record-number
 	  ." invalid record number: " . quit
   else
 	  record-length * test-scores +
-  then ;
+  endif ;
 
 : >name-for-record ( n -- addr )
   >score-record
 ;
 
 : >score-for-record ( n -- addr )
-  >score-record
-  name-length +
+  >score-record name-length +
 ;
 
 
@@ -79,24 +78,40 @@ number-of-records 1 - constant max-record-number
 : >enter-score ( n -- )
   \ this is rather simple minded, but it is good
   \ enough for this exercise
-  dup
-  >clear-score
+  dup >clear-score
   pad 10 accept
   pad swap s>number?
   if
     drop swap >score-for-record l!
   else
     ." error on input conversion" quit
-  then
-  ;
+  endif
+;
 
 
 : >enter-record ( n -- )
-  dup
-  >enter-name
-  >enter-score
+  dup >enter-name >enter-score
 ;
 
+
+: >batch-enter-score ( addr count n -- )
+  dup >clear-score >r s>number?
+  if
+    drop r> >score-for-record l!
+  else
+    ." error on input conversion" quit
+  endif
+;
+
+: >batch-enter-name ( addr count n -- )
+  dup >clear-name >name-for-record swap cmove
+;
+
+
+\ 1 = name, 2 = score, n = entry number
+: >batch-enter-record ( addr1 count1 addr2 count2 n -- )
+  dup >r >batch-enter-score r> >batch-enter-name
+;
 
 \ display fields or the whole record
 
@@ -109,10 +124,7 @@ number-of-records 1 - constant max-record-number
 ;
 
 : >print-record ( n -- )
-  dup
-  >print-name
-  space
-  >print-score
+  dup >print-name space >print-score
 ;
 
 
