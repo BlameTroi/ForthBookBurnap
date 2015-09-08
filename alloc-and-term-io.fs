@@ -18,7 +18,7 @@ troy definitions
 
 10 constant number-of-records
 20 constant name-length
- 4 constant score-length ( 32 bits stored in binary )
+ 4 constant score-length ( 32 bits stored in binary, half a cell )
 
 name-length score-length + constant record-length
 
@@ -39,10 +39,11 @@ number-of-records 1 - constant max-record-number
 : >score-record ( n -- addr )
   dup dup 0 < swap max-record-number > or
   if
-	  ." invalid record number: " . quit
+	  . s" invalid record number " throw
   else
 	  record-length * test-scores +
-  endif ;
+  endif
+;
 
 : >name-for-record ( n -- addr )
   >score-record
@@ -88,11 +89,9 @@ number-of-records 1 - constant max-record-number
   endif
 ;
 
-
 : >enter-record ( n -- )
   dup >enter-name >enter-score
 ;
-
 
 : >batch-enter-score ( addr count n -- )
   dup >clear-score >r s>number?
@@ -137,7 +136,6 @@ number-of-records 1 - constant max-record-number
     >enter-record
   loop
 ;
-
 
 : print-records
   number-of-records 0 ?do

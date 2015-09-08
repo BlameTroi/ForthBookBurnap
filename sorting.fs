@@ -11,11 +11,23 @@ sorting.fs
 
 marker sorting.fs
 
-
 \ vocabulary set in prior include
 \ vocabulary troy
 \ also troy
 \ troy definitions
+
+\ load test data, 10 records
+
+s" one"                  s" 99" 0 >batch-enter-record
+s" two"                  s" 76" 1 >batch-enter-record
+s" three"                s" 88" 2 >batch-enter-record
+s" four"                 s" 92" 3 >batch-enter-record
+s" five"                 s" 83" 4 >batch-enter-record
+s" six"                  s" 79" 5 >batch-enter-record
+s" seven"                s" 60" 6 >batch-enter-record
+s" eight"                s" 81" 7 >batch-enter-record
+s" nine"                 s" 93" 8 >batch-enter-record
+s" ten"                  s" 85" 9 >batch-enter-record
 
 \ string comparison, strings have a maximum
 \ length and are stored in a block of memory
@@ -53,27 +65,32 @@ marker sorting.fs
 \ he also avoids passing length as a parameter
 \ to avoid stack confusion. now is the time
 \ to try variables
-: swap-entries { addr1 addr2 length -- }
+: old-swap-entries { addr1 addr2 length -- }
   addr1 pad length cmove
   addr2 addr1 length cmove
   pad addr2 length cmove
 ;
 
+: swap-entries { n1 n2 -- }
+  n1 >score-record pad record-length cmove
+  n2 >score-record n1 >score-record record-length cmove
+  pad n2 >score-record record-length cmove
+;
 
-\ bubble sort single pass
-\ oddly returning false if an exchange occurred
-\ and true if not
+: compare-names-s> ( n1 n2 -- f )
+  >name-for-record swap >name-for-record swap name-length s>
+;
+
+
+\ buble sort single pass for names from book
 : bubble ( -- f )
   true
-  number-of-records 0 ?do
-    i dup >name-for-record
-    swap 1- >name-for-record
-    s> if
-      i dup >name-for-record
-      swap 1- >name-for-record
-      and false
+  0 max-record-number ?do
+    i 1 - i compare-names-s> if
+      i dup 1 - swap-entries
+      false and ( i think this is backwards )
     else
-      and true
+      true and
     endif
     -1
   +loop
